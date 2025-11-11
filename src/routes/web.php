@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AsesorController;
 use App\Http\Controllers\OrdenController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ReporteController;
 
 Route::get('/', fn() => redirect()->route('dashboard.index'));
 
@@ -22,3 +23,10 @@ Route::resource('ordenes', OrdenController::class)
 // Actualizar checklist
 Route::put('ordenes/{orden}/revisiones', [OrdenController::class, 'updateRevisiones'])
     ->name('ordenes.revisiones.update');
+
+
+Route::get('reportes', [ReporteController::class, 'index'])->name('reportes.index');
+Route::post('reportes/filtrar', [ReporteController::class, 'filtrar'])->name('reportes.filtrar');
+Route::get('reportes/orden/{id}/pdf', [ReporteController::class, 'exportarPDF'])->name('reportes.pdf');
+
+

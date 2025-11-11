@@ -40,17 +40,9 @@ class OrdenController extends Controller
     {
         $query = Orden::with('asesor', 'revisiones')->orderByDesc('fecha');
 
-        if ($request->filled('asesor_id')) {
-            $query->where('asesor_id', $request->asesor_id);
-        }
-
-        if ($request->filled('desde')) {
-            $query->whereDate('fecha', '>=', $request->desde);
-        }
-
-        if ($request->filled('hasta')) {
-            $query->whereDate('fecha', '<=', $request->hasta);
-        }
+        if ($request->filled('asesor_id')) $query->where('asesor_id', $request->asesor_id);
+        if ($request->filled('desde')) $query->whereDate('fecha', '>=', $request->desde);
+        if ($request->filled('hasta')) $query->whereDate('fecha', '<=', $request->hasta);
 
         $ordenes = $query->paginate(10)->appends($request->query());
         return view('ordenes.index', compact('ordenes'));
@@ -74,6 +66,7 @@ class OrdenController extends Controller
 
         DB::transaction(function () use ($data) {
             $orden = Orden::create($data);
+
             foreach ($this->rubros as $rubro) {
                 Revision::create([
                     'orden_id'   => $orden->id,
@@ -81,11 +74,12 @@ class OrdenController extends Controller
                     'revision_1' => null,
                     'revision_2' => null,
                     'revision_3' => null,
+                    'comentario' => null,
                 ]);
             }
         });
 
-        return redirect()->route('ordenes.index')->with('ok', 'Orden creada con checklist correctamente.');
+        return redirect()->route('ordenes.index')->with('ok', 'Orden creada con checklist.');
     }
 
     public function edit(Orden $orden)
@@ -97,7 +91,7 @@ class OrdenController extends Controller
     public function update(Request $request, Orden $orden)
     {
         $data = $request->validate([
-            'numero_orden'  => ['required','string','max:50', Rule::unique('ordenes','numero_orden')->ignore($orden->id)],
+            'numero_orden'  => ['required', 'string', 'max:50', Rule::unique('ordenes', 'numero_orden')->ignore($orden->id)],
             'numero_chasis' => 'nullable|string|max:100',
             'fecha'         => 'nullable|date',
             'observaciones' => 'nullable|string',
@@ -114,7 +108,6 @@ class OrdenController extends Controller
             $orden->revisiones()->delete();
             $orden->delete();
         });
-
         return redirect()->route('ordenes.index')->with('ok', 'Orden eliminada correctamente.');
     }
 
@@ -125,33 +118,47 @@ class OrdenController extends Controller
     }
 
     public function updateRevisiones(Request $request, Orden $orden)
-    {
-        $data = $request->input('revision', []);
+{
+    // Obtenemos el arreglo de revisiones desde el formulario
+    $data = $request->input('revision', []);
 
-        foreach ($data as $revisionId => $vals) {
-            $r1 = $vals['revision_1'] ?? null;
-            $r2 = $vals['revision_2'] ?? null;
-            $r3 = $vals['revision_3'] ?? null;
+    foreach ($data as $revisionId => $vals) {
+        $revision = $orden->revisiones()->where('id', $revisionId)->first();
+        if (!$revision) continue; // Evita errores si la revisión no pertenece a la orden
 
-            foreach ([$r1, $r2, $r3] as $v) {
-                if ($v !== null && !in_array($v, ['si', 'no', 'na'], true)) {
-                    return back()->withErrors('Valor inválido en checklist.')->withInput();
-                }
-            }
+        // Extraemos valores del formulario (si existen)
+        $r1 = array_key_exists('revision_1', $vals) ? strtolower(trim($vals['revision_1'])) : null;
+        $r2 = array_key_exists('revision_2', $vals) ? strtolower(trim($vals['revision_2'])) : null;
+        $r3 = array_key_exists('revision_3', $vals) ? strtolower(trim($vals['revision_3'])) : null;
+        $comentario = array_key_exists('comentario', $vals) ? trim($vals['comentario']) : $revision->comentario;
 
-            $revision = $orden->revisiones()->where('id', $revisionId)->first();
-            if ($revision) {
-                $revision->update([
-                    'revision_1' => $r1,
-                    'revision_2' => $r2,
-                    'revision_3' => $r3,
-                ]);
+        // 🔒 Validamos que los valores sean correctos (solo si, no, na o null)
+        foreach ([$r1, $r2, $r3] as $valor) {
+            if (!in_array($valor, [null, 'si', 'no', 'na'], true)) {
+                return back()->withErrors(['error' => 'Valor inválido en una revisión.'])
+                             ->withInput();
             }
         }
 
-        return redirect()->route('ordenes.show', $orden)->with('ok', 'Checklist actualizado correctamente.');
+        // 🧹 Si viene vacío (porque se limpió), lo guardamos como null en BD
+        $revision->update([
+            'revision_1' => $r1 !== '' ? $r1 : null,
+            'revision_2' => $r2 !== '' ? $r2 : null,
+            'revision_3' => $r3 !== '' ? $r3 : null,
+            'comentario' => $comentario !== '' ? $comentario : null,
+        ]);
     }
+
+    // 🔄 Redirigimos de vuelta con mensaje de confirmación
+    return redirect()
+        ->route('ordenes.show', $orden)
+        ->with('ok', 'Checklist actualizado correctamente.');
 }
+
+
+}
+
+
 
 
 
