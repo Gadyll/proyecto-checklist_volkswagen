@@ -57,7 +57,7 @@
 <body>
 
 <div class="header">
-    <h2>Volkswagen México</h2>
+    <h2>Volkswagen Pasteur S.A de C.V</h2>
     <p><strong>Reporte de Orden de Reparación</strong></p>
 </div>
 

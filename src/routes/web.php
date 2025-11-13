@@ -29,4 +29,5 @@ Route::get('reportes', [ReporteController::class, 'index'])->name('reportes.inde
 Route::post('reportes/filtrar', [ReporteController::class, 'filtrar'])->name('reportes.filtrar');
 Route::get('reportes/orden/{id}/pdf', [ReporteController::class, 'exportarPDF'])->name('reportes.pdf');
 
+Route::resource('ordenes', OrdenController::class);
 
