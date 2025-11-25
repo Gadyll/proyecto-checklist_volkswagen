@@ -22,55 +22,61 @@ class ReporteController extends Controller
     }
 
     // ===========================================================
-    // FILTRAR ÓRDENES
+    // FILTRAR ÓRDENES (CON PRIORIDAD CORRECTA)
     // ===========================================================
     public function filtrar(Request $request)
     {
         $query = Orden::query();
 
-        // ------------------------------
-        // FILTRO: NÚMERO DE ORDEN
-        // ------------------------------
-        if (!empty($request->numero_orden)) {
+        // ========================================================
+        // IDENTIFICAR FILTRO PRINCIPAL QUE SE DEBE APLICAR
+        // ========================================================
+        $buscarOrden  = !empty($request->numero_orden);
+        $buscarChasis = !empty($request->numero_chasis);
+        $buscarAsesor = !empty($request->asesor_id) || !empty($request->fecha_inicio) || !empty($request->fecha_fin);
+
+        // ========================================================
+        // PRIORIDAD #1 → BÚSQUEDA POR NÚMERO DE ORDEN (EXCLUSIVA)
+        // ========================================================
+        if ($buscarOrden) 
+        {
             $query->where('numero_orden', 'LIKE', "%{$request->numero_orden}%");
         }
-
-        // ------------------------------
-        // FILTRO: NÚMERO DE CHASIS
-        // ------------------------------
-        if (!empty($request->numero_chasis)) {
+        // ========================================================
+        // PRIORIDAD #2 → BÚSQUEDA POR CHASIS (EXCLUSIVA)
+        // ========================================================
+        elseif ($buscarChasis) 
+        {
             $query->where('numero_chasis', 'LIKE', "%{$request->numero_chasis}%");
         }
+        // ========================================================
+        // PRIORIDAD #3 → ASESOR + FECHAS (IGNORA ORDEN/CHASIS)
+        // ========================================================
+        elseif ($buscarAsesor) 
+        {
+            if (!empty($request->asesor_id)) {
+                $query->where('asesor_id', $request->asesor_id);
+            }
 
-        // ------------------------------
-        // FILTRO: ASESOR
-        // ------------------------------
-        if (!empty($request->asesor_id)) {
-            $query->where('asesor_id', $request->asesor_id);
+            if (!empty($request->fecha_inicio)) {
+                $query->whereDate('fecha', '>=', $request->fecha_inicio);
+            }
+
+            if (!empty($request->fecha_fin)) {
+                $query->whereDate('fecha', '<=', $request->fecha_fin);
+            }
         }
 
-        // ------------------------------
-        // FILTROS: FECHAS
-        // ------------------------------
-        if (!empty($request->fecha_inicio)) {
-            $query->whereDate('fecha', '>=', $request->fecha_inicio);
-        }
-
-        if (!empty($request->fecha_fin)) {
-            $query->whereDate('fecha', '<=', $request->fecha_fin);
-        }
-
-        // ------------------------------
+        // ========================================================
         // EJECUTAR CONSULTA
-        // ------------------------------
+        // ========================================================
         $ordenes = $query->with(['asesor', 'revisiones'])
             ->orderBy('fecha', 'desc')
             ->get();
 
-        // ------------------------------
-        // CALCULAR PROGRESO POR ORDEN
-        // MISMO CRITERIO DE OrdenController
-        // ------------------------------
+        // ========================================================
+        // CALCULAR PROGRESO EXACTO (MISMA LÓGICA DE ORDENES)
+        // ========================================================
         foreach ($ordenes as $orden) {
 
             $total = $orden->revisiones->count();
@@ -79,12 +85,10 @@ class ReporteController extends Controller
 
                 $val = $rev->revision_1;
 
-                // Normalizar espacios o valores raros
                 if (is_string($val)) {
                     $val = trim($val);
                 }
 
-                // Si tiene algo (SI / NO / NA) => completada
                 return $val !== null && $val !== '';
             })->count();
 
@@ -93,9 +97,9 @@ class ReporteController extends Controller
                 : 0;
         }
 
-        // ------------------------------
-        // SI NO HAY RESULTADOS → ALERTA
-        // ------------------------------
+        // ========================================================
+        // ALERTA SI NO SE ENCONTRARON RESULTADOS
+        // ========================================================
         if ($ordenes->isEmpty()) {
             return back()->with('info', 'No se encontraron órdenes que coincidan con los criterios de búsqueda.');
         }
@@ -120,5 +124,6 @@ class ReporteController extends Controller
         return $pdf->download("Orden-{$orden->numero_orden}.pdf");
     }
 }
+
 
 

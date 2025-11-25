@@ -60,3 +60,8 @@ Route::get('/reportes', [ReporteController::class, 'index'])
 Route::get('/reportes/pdf/{orden}', [ReporteController::class, 'pdf'])
     ->name('reportes.pdf');
 
+    // Evita error si alguien entra a reportes/filtrar por GET
+Route::get('/reportes/filtrar', function () {
+    return redirect()->route('reportes.index')
+        ->with('info', 'La búsqueda debe realizarse desde el formulario de reportes.');
+});

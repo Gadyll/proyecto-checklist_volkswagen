@@ -89,9 +89,7 @@
             color: #cfd8e3;
         }
 
-        /* ================================
-           ALERTAS CON ANIMACIÓN
-        ================================= */
+        /* Alertas con animación */
         .alert {
             opacity: 1;
             transition: opacity .5s ease-out;
@@ -179,25 +177,73 @@
 
         </div>
 
-        {{-- Aquí va el contenido dinámico --}}
         @yield('content')
 
     </main>
 
 </div>
 
+
+{{-- ======================================================
+     MODAL PROFESIONAL ELIMINAR ORDEN
+========================================================= --}}
+<div class="modal fade" id="modalEliminarOrden" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Confirmar eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="mb-0">
+                    ¿Deseas eliminar esta orden de forma permanente?<br>
+                    <strong>Esta acción no se puede deshacer.</strong>
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+
+                <form id="formEliminarOrden" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">
+                        Eliminar definitivamente
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
 {{-- ================================
     JS
 ================================ --}}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-{{-- Ocultar alertas después de 4 seg --}}
 <script>
+    // Cerrar alertas automáticas
     setTimeout(() => {
         document.querySelectorAll('.alert').forEach(alert => {
             alert.classList.add('hide');
         });
     }, 3000);
+
+
+    // Función para abrir modal de confirmación
+    function abrirModalEliminar(url) {
+        const form = document.getElementById('formEliminarOrden');
+        form.action = url;
+
+        const modal = new bootstrap.Modal(document.getElementById('modalEliminarOrden'));
+        modal.show();
+    }
 </script>
 
 </body>
