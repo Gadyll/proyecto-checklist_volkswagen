@@ -6,22 +6,6 @@ use App\Http\Controllers\AsesorController;
 use App\Http\Controllers\ReporteController;
 
 
-
-Route::get('/reportes', [ReporteController::class, 'index'])->name('reportes.index');
-Route::post('/reportes/filtrar', [ReporteController::class, 'filtrar'])->name('reportes.filtrar');
-Route::get('/reportes/pdf/{orden}', [ReporteController::class, 'pdf'])->name('reportes.pdf');
-
-
-
-
-
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
 // =============================
 // 🏠 DASHBOARD
 // =============================
@@ -31,15 +15,13 @@ Route::get('/', function () {
 
 
 // =============================
-// 📄 ÓRDENES DE REPARACIÓN
+// 📄 ÓRDENES
 // =============================
-
-// Resource con ajuste de parámetro para evitar "ordene"
 Route::resource('ordenes', OrdenController::class)->parameters([
     'ordenes' => 'orden'
 ]);
 
-// Ruta para actualizar revisiones del checklist
+// Actualizar checklist
 Route::put('/ordenes/{orden}/revisiones', [OrdenController::class, 'updateRevisiones'])
     ->name('ordenes.revisiones.update');
 
@@ -47,21 +29,34 @@ Route::put('/ordenes/{orden}/revisiones', [OrdenController::class, 'updateRevisi
 // =============================
 // 👤 ASESORES
 // =============================
-Route::resource('asesores', AsesorController::class);
+
+// Resource con corrección del parámetro para evitar “asesore”
+Route::resource('asesores', AsesorController::class)->parameters([
+    'asesores' => 'asesor'
+]);
+
+// Nueva ruta para desempeño del asesor
+Route::get('/asesores/{asesor}/desempeno', [AsesorController::class, 'desempeno'])
+    ->name('asesores.desempeno');
 
 
 // =============================
 // 📊 REPORTES
 // =============================
+
 Route::get('/reportes', [ReporteController::class, 'index'])
     ->name('reportes.index');
 
-// Descargar PDF de una orden
-Route::get('/reportes/pdf/{orden}', [ReporteController::class, 'pdf'])
-    ->name('reportes.pdf');
+Route::post('/reportes/filtrar', [ReporteController::class, 'filtrar'])
+    ->name('reportes.filtrar');
 
-    // Evita error si alguien entra a reportes/filtrar por GET
+// Manejar error si entran por GET a filtrar
 Route::get('/reportes/filtrar', function () {
     return redirect()->route('reportes.index')
         ->with('info', 'La búsqueda debe realizarse desde el formulario de reportes.');
 });
+
+Route::get('/reportes/pdf/{orden}', [ReporteController::class, 'pdf'])
+    ->name('reportes.pdf');
+
+
