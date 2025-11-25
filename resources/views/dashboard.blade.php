@@ -1,79 +1,71 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h3 class="m-0">🏠 Panel Volkswagen</h3>
+
+<div class="container py-4">
+
+    <h1 class="mb-4 fw-bold">
+        <i class="bi bi-speedometer2"></i> Dashboard
+    </h1>
+
+    <div class="row g-4">
+
+        {{-- ============================
+                TARJETA ÓRDENES
+        ============================ --}}
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center py-4">
+                    <i class="bi bi-card-checklist fs-1 text-primary"></i>
+                    <h4 class="mt-3">Órdenes</h4>
+                    <p class="text-muted">Gestiona todas las órdenes de reparación.</p>
+
+                    <a href="{{ route('ordenes.index') }}" class="btn btn-primary w-100 mb-2">
+                        <i class="bi bi-list-ul"></i> Ver órdenes
+                    </a>
+
+                    <a href="{{ route('ordenes.create') }}" class="btn btn-success w-100">
+                        <i class="bi bi-plus-circle"></i> Nueva orden
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {{-- ============================
+                 TARJETA ASESORES
+        ============================ --}}
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center py-4">
+                    <i class="bi bi-people fs-1 text-info"></i>
+                    <h4 class="mt-3">Asesores</h4>
+                    <p class="text-muted">Administra a los asesores registrados.</p>
+
+                    <a href="{{ route('asesores.index') }}" class="btn btn-info text-white w-100">
+                        <i class="bi bi-person-lines-fill"></i> Ver asesores
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        {{-- ============================
+                 TARJETA REPORTES
+        ============================ --}}
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center py-4">
+                    <i class="bi bi-file-earmark-bar-graph fs-1 text-warning"></i>
+                    <h4 class="mt-3">Reportes</h4>
+                    <p class="text-muted">Genera reportes y estadísticas.</p>
+
+                    <a href="{{ route('reportes.index') }}" class="btn btn-warning w-100">
+                        <i class="bi bi-file-earmark-arrow-down"></i> Ver reportes
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
 </div>
 
-<div class="row g-4 mb-4">
-  <div class="col-md-6 col-lg-3">
-    <div class="card text-center p-3">
-      <div class="text-muted">Total Asesores</div>
-      <div class="fs-2 fw-bold text-primary">{{ $totalAsesores }}</div>
-    </div>
-  </div>
-
-  <div class="col-md-6 col-lg-3">
-    <div class="card text-center p-3">
-      <div class="text-muted">Total Órdenes</div>
-      <div class="fs-2 fw-bold text-success">{{ $totalOrdenes }}</div>
-    </div>
-  </div>
-
-  <div class="col-md-6 col-lg-6">
-    <div class="card p-3">
-      <h6 class="fw-bold mb-3">📊 Órdenes por Asesor</h6>
-      <canvas id="chartAsesores" height="120"></canvas>
-    </div>
-  </div>
-</div>
-
-<div class="card p-3">
-  <h6 class="fw-bold mb-3">📋 Últimas Órdenes Registradas</h6>
-  <table class="table table-hover align-middle">
-    <thead class="table-light">
-      <tr>
-        <th># Orden</th>
-        <th>Asesor</th>
-        <th>Fecha</th>
-        <th>Observaciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      @forelse($ultimasOrdenes as $o)
-        <tr>
-          <td>{{ $o->numero_orden }}</td>
-          <td>{{ $o->asesor?->nombre }} {{ $o->asesor?->apellido }}</td>
-          <td>{{ $o->fecha }}</td>
-          <td>{{ $o->observaciones ?: '—' }}</td>
-        </tr>
-      @empty
-        <tr><td colspan="4" class="text-center text-muted">No hay registros recientes.</td></tr>
-      @endforelse
-    </tbody>
-  </table>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const ctx = document.getElementById('chartAsesores').getContext('2d');
-  const data = {
-    labels: @json($ordenesPorAsesor->pluck('nombre')),
-    datasets: [{
-      label: 'Órdenes por Asesor',
-      data: @json($ordenesPorAsesor->pluck('ordenes_count')),
-      backgroundColor: '#0055a5'
-    }]
-  };
-  new Chart(ctx, {
-    type: 'bar',
-    data: data,
-    options: {
-      plugins: { legend: { display: false } },
-      scales: { y: { beginAtZero: true } }
-    }
-  });
-});
-</script>
 @endsection

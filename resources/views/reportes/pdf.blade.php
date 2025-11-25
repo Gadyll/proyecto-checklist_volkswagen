@@ -2,102 +2,148 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Orden {{ $orden->numero_orden }} - Volkswagen</title>
+    <title>Reporte Orden {{ $orden->numero_orden }}</title>
+
     <style>
+        @page {
+            margin: 18px 22px;
+        }
+
         body {
-            font-family: 'DejaVu Sans', sans-serif;
-            font-size: 12px;
-            color: #333;
-        }
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #005bbb;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-        .header h2 {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 11px;
             margin: 0;
-            color: #005bbb;
+            padding: 0;
         }
-        .info {
-            margin-bottom: 15px;
+
+        /* ===== Encabezado ===== */
+        .header {
+            background: #001E50;
+            color: white;
+            text-align: center;
+            padding: 10px 5px;
         }
-        .info td {
-            padding: 4px 6px;
+
+        .header h1 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
         }
-        .table {
+
+        .header p {
+            margin: 2px 0 0;
+            font-size: 10px;
+        }
+
+        /* ===== Secciones ===== */
+        .section {
+            padding: 8px 5px;
+            page-break-inside: avoid;
+        }
+
+        h2 {
+            color: #001E50;
+            margin: 0 0 4px;
+            font-size: 13px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .info p {
+            margin: 1px 0;
+            font-size: 10.5px;
+        }
+
+        /* ===== Tabla ===== */
+        table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            margin-top: 5px;
+            page-break-inside: avoid;
         }
-        .table th {
-            background: #005bbb;
-            color: white;
-            padding: 6px;
+
+        th {
+            background: #E6ECF5;
+            border: 1px solid #CBD3DF;
+            padding: 4px;
             text-align: center;
-            font-size: 12px;
+            color: #001E50;
+            font-size: 10px;
         }
-        .table td {
-            border: 1px solid #ccc;
-            padding: 6px;
-            text-align: center;
-            font-size: 11px;
+
+        td {
+            border: 1px solid #CBD3DF;
+            padding: 3px 4px;
+            font-size: 9.5px;
         }
+
+        /* Evitar saltos */
+        tr, td, th {
+            page-break-inside: avoid !important;
+        }
+
+        /* Footer */
         .footer {
             text-align: center;
-            margin-top: 20px;
-            font-size: 11px;
-            color: #555;
-        }
-        .blue {
-            color: #005bbb;
+            margin-top: 6px;
+            font-size: 9px;
+            color: #777;
         }
     </style>
 </head>
+
 <body>
 
-<div class="header">
-    <h2>Volkswagen Pasteur S.A de C.V</h2>
-    <p><strong>Reporte de Orden de Reparación</strong></p>
-</div>
+    <!-- ENCABEZADO -->
+    <div class="header">
+        <h1>Volkswagen Pasteur Querétaro</h1>
+        <p>Reporte del Checklist de Orden • Documento generado automáticamente</p>
+    </div>
 
-<table class="info" width="100%">
-    <tr>
-        <td><strong>Número de Orden:</strong> {{ $orden->numero_orden }}</td>
-        <td><strong>Fecha:</strong> {{ $orden->fecha }}</td>
-    </tr>
-    <tr>
-        <td><strong>Asesor:</strong> {{ $orden->asesor?->nombre }} {{ $orden->asesor?->apellido }}</td>
-        <td><strong>Chasis:</strong> {{ $orden->numero_chasis }}</td>
-    </tr>
-</table>
+    <!-- INFORMACIÓN DE LA ORDEN -->
+    <div class="section">
+        <h2>Información de la Orden</h2>
+        <div class="info">
+            <p><strong>Número de orden:</strong> {{ $orden->numero_orden }}</p>
+            <p><strong>Chasis:</strong> {{ $orden->numero_chasis }}</p>
+            <p><strong>Fecha:</strong> {{ $orden->fecha }}</p>
+            <p><strong>Asesor:</strong> {{ $orden->asesor->nombre }} {{ $orden->asesor->apellido }}</p>
+            <p><strong>Observaciones:</strong> {{ $orden->observaciones ?? 'N/A' }}</p>
+        </div>
+    </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Rubro</th>
-            <th>Revisión 1</th>
-            <th>Revisión 2</th>
-            <th>Revisión 3</th>
-            <th>Comentario</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach($orden->revisiones as $rev)
-            <tr>
-                <td style="text-align:left">{{ $rev->rubro }}</td>
-                <td>{{ strtoupper($rev->revision_1 ?? '-') }}</td>
-                <td>{{ strtoupper($rev->revision_2 ?? '-') }}</td>
-                <td>{{ strtoupper($rev->revision_3 ?? '-') }}</td>
-                <td style="text-align:left">{{ $rev->comentario ?? '' }}</td>
-            </tr>
-        @endforeach
-    </tbody>
-</table>
+    <!-- CHECKLIST -->
+    <div class="section">
+        <h2>Checklist de Revisión</h2>
 
-<div class="footer">
-    <p>© 2025 Volkswagen México — Sistema de Control de Órdenes</p>
-</div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 32%;">Rubro</th>
+                    <th style="width: 8%;">R1</th>
+                    <th style="width: 8%;">R2</th>
+                    <th style="width: 8%;">R3</th>
+                    <th>Comentario</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach($orden->revisiones as $r)
+                <tr>
+                    <td>{{ $r->rubro }}</td>
+                    <td style="text-align:center;">{{ strtoupper($r->revision_1 ?? '-') }}</td>
+                    <td style="text-align:center;">{{ strtoupper($r->revision_2 ?? '-') }}</td>
+                    <td style="text-align:center;">{{ strtoupper($r->revision_3 ?? '-') }}</td>
+                    <td>{{ $r->comentario ?? '-' }}</td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        © {{ date('Y') }} Volkswagen Pasteur Querétaro — Sistema Interno de Control de Órdenes
+    </div>
 
 </body>
 </html>
