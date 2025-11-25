@@ -48,24 +48,17 @@
                             <div class="d-flex justify-content-center gap-2">
 
                                 <a href="{{ route('ordenes.show', $orden) }}"
-                                   class="btn btn-sm btn-outline-primary px-3">
-                                    Abrir
-                                </a>
+                                   class="btn btn-sm btn-outline-primary px-3">Abrir</a>
 
                                 <a href="{{ route('ordenes.edit', $orden) }}"
-                                   class="btn btn-sm btn-outline-secondary px-3">
-                                    Editar
-                                </a>
+                                   class="btn btn-sm btn-outline-secondary px-3">Editar</a>
 
-                                <form action="{{ route('ordenes.destroy', $orden) }}"
-                                      method="post"
-                                      onsubmit="return confirm('¿Eliminar orden?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-sm btn-outline-danger px-3">
-                                        Eliminar
-                                    </button>
-                                </form>
+                                {{-- BOTÓN ABRE MODAL --}}
+                                <button type="button"
+                                    class="btn btn-sm btn-outline-danger px-3"
+                                    onclick="openDeleteModal({{ $orden->id }}, '{{ $orden->numero_orden }}')">
+                                    Eliminar
+                                </button>
 
                             </div>
                         </td>
@@ -79,3 +72,55 @@
 </div>
 
 @endsection
+
+{{-- ===================================================== --}}
+{{--                       MODAL ELEGANTE                  --}}
+{{-- ===================================================== --}}
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-trash"></i> Confirmar eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <p class="fs-5">¿Deseas eliminar la orden <b id="ordenSeleccionada"></b>?</p>
+                <p class="text-muted">Esta acción no puede deshacerse.</p>
+            </div>
+
+            <div class="modal-footer">
+                <form method="POST" id="deleteForm">
+                    @csrf
+                    @method('DELETE')
+
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+
+                    <button type="submit" class="btn btn-danger">
+                        Eliminar orden
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{{-- ===================================================== --}}
+{{--             SCRIPT CONTROLADOR DEL MODAL              --}}
+{{-- ===================================================== --}}
+<script>
+    function openDeleteModal(id, numero) {
+        document.getElementById('ordenSeleccionada').innerText = numero;
+        document.getElementById('deleteForm').action = "/ordenes/" + id;
+
+        const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        modal.show();
+    }
+</script>

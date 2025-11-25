@@ -10,7 +10,9 @@ use App\Http\Requests\StoreOrdenRequest;
 
 class OrdenController extends Controller
 {
-    // LISTADO
+    // ===========================================================
+    // LISTADO GENERAL
+    // ===========================================================
     public function index()
     {
         $ordenes = Orden::with('asesor')
@@ -20,14 +22,18 @@ class OrdenController extends Controller
         return view('ordenes.index', compact('ordenes'));
     }
 
-    // FORMULARIO CREAR
+    // ===========================================================
+    // FORMULARIO: CREAR ORDEN
+    // ===========================================================
     public function create()
     {
         $asesores = Asesor::orderBy('nombre')->get();
         return view('ordenes.create', compact('asesores'));
     }
 
-    // GUARDAR NUEVA ORDEN
+    // ===========================================================
+    // GUARDAR ORDEN NUEVA
+    // ===========================================================
     public function store(StoreOrdenRequest $request)
     {
         $orden = Orden::create([
@@ -38,89 +44,108 @@ class OrdenController extends Controller
             'observaciones'  => $request->observaciones,
         ]);
 
-        // Crear checklist automatico con todos los rubros reales
-$rubros = [
-    "FACTURA",
-    "FORMATO DE INSPECCIÓN",
-    "FORMATO DE CONTROLISTA",
-    "PROTOCOLO",
-    "AVISO DE ADICIONALES Y PRECIO",
-    "COINCIDE EN PRECIO INICIAL VS EL PRECIO FINAL",
-    "NOMBRE Y FIRMA DEL ASESOR Y EL TÉCNICO EN ORDEN DE REPARACIÓN",
-    "RELOJ CHECADOR",
-    "FIRMA DEL CONTROLISTA",
-    "AVISO DE PRIVACIDAD",
-    "CONTRATO DE ADHESIÓN FIRMADO",
-    "ORDEN DE REPARACIÓN FIRMADA",
-    "TICKET DE BATERÍA Y MENSAJE",
-    "FORMATO DE HERRAMIENTAS",
-    "FORMATO DE SALIDA DE REFACCIONES",
-    "TARJETA VIAJERA LLENA",
-    "POSICIONES DE TRABAJO",
-    "COINCIDEN LAS UNIDADES DE TIEMPO",
-    "PAGO POR JEFE DE TALLER",
-    "CAMPAÑAS DE REVISIÓN",
-    "PREFACTURA",
-    "VALE DE SALIDA"
-];
+        // ======================================================
+        // CHECKLIST OFICIAL COMPLETO VW
+        // ======================================================
+        $rubros = [
+            "FACTURA",
+            "FORMATO DE INSPECCIÓN",
+            "FORMATO DE CONTROLISTA",
+            "PROTOCOLO",
+            "AVISO DE ADICIONALES Y PRECIO",
+            "COINCIDE EN PRECIO INICIAL VS EL PRECIO FINAL",
+            "NOMBRE Y FIRMA DEL ASESOR Y EL TÉCNICO EN ORDEN DE REPARACIÓN",
+            "RELOJ CHECADOR",
+            "FIRMA DEL CONTROLISTA",
+            "AVISO DE PRIVACIDAD",
+            "CONTRATO DE ADHESIÓN FIRMADO",
+            "ORDEN DE REPARACIÓN FIRMADA",
+            "TICKET DE BATERÍA Y MENSAJE",
+            "FORMATO DE HERRAMIENTAS",
+            "FORMATO DE SALIDA DE REFACCIONES",
+            "TARJETA VIAJERA LLENA",
+            "POSICIONES DE TRABAJO",
+            "COINCIDEN LAS UNIDADES DE TIEMPO",
+            "PAGO POR JEFE DE TALLER",
+            "CAMPAÑAS DE REVISIÓN",
+            "PREFACTURA",
+            "VALE DE SALIDA"
+        ];
 
-foreach ($rubros as $r) {
-    Revision::create([
-        'orden_id' => $orden->id,
-        'rubro'    => $r,
-        'revision_1' => null,
-        'revision_2' => null,
-        'revision_3' => null,
-        'comentario' => null
-    ]);
-}
+        foreach ($rubros as $r) {
+            Revision::create([
+                'orden_id' => $orden->id,
+                'rubro'    => $r
+            ]);
+        }
 
-        return redirect()->route('ordenes.index')->with('ok', 'Orden creada correctamente.');
+        return redirect()
+            ->route('ordenes.index')
+            ->with('ok', 'La orden fue registrada exitosamente junto con su checklist oficial.');
     }
 
-    // VER DETALLE
+    // ===========================================================
+    // VER DETALLE DE LA ORDEN
+    // ===========================================================
     public function show(Orden $orden)
     {
         $revisiones = $orden->revisiones;
 
+        // Progreso basado en si la revisión tiene un valor válido (SI / NO / NA)
         $total = $revisiones->count();
-        $completadas = $revisiones->where('revision_1', 'SI')->count();
+
+        $completadas = $revisiones->filter(function ($rev) {
+            return $rev->revision_1 !== null && $rev->revision_1 !== '';
+        })->count();
+
         $porcentaje = $total > 0 ? round(($completadas / $total) * 100) : 0;
 
         return view('ordenes.show', compact('orden', 'revisiones', 'porcentaje'));
     }
 
-    // FORMULARIO EDITAR
+    // ===========================================================
+    // FORMULARIO: EDITAR ORDEN
+    // ===========================================================
     public function edit(Orden $orden)
     {
         $asesores = Asesor::orderBy('nombre')->get();
         return view('ordenes.edit', compact('orden', 'asesores'));
     }
 
+    // ===========================================================
     // ACTUALIZAR ORDEN
+    // ===========================================================
     public function update(StoreOrdenRequest $request, Orden $orden)
     {
         $orden->update($request->validated());
 
-        return redirect()->route('ordenes.index')
-            ->with('ok', 'Orden actualizada correctamente.');
+        return redirect()
+            ->route('ordenes.index')
+            ->with('ok', 'Los cambios de la orden han sido guardados correctamente.');
     }
 
-    // BORRAR ORDEN
+    // ===========================================================
+    // ELIMINAR ORDEN
+    // ===========================================================
     public function destroy(Orden $orden)
     {
         $orden->delete();
 
         return redirect()
             ->route('ordenes.index')
-            ->with('ok', 'Orden eliminada.');
+            ->with('ok', 'La orden fue eliminada de forma exitosa.');
     }
 
+    // ===========================================================
     // ACTUALIZAR CHECKLIST
+    // ===========================================================
     public function updateRevisiones(Request $request, Orden $orden)
     {
-        foreach ($request->revision as $id => $vals) {
+        if (!$request->has('revision')) {
+            return back()->with('error', 'No se recibió información del checklist para actualizar.');
+        }
 
+        foreach ($request->revision as $id => $vals) {
             $rev = Revision::find($id);
             if (!$rev) continue;
 
@@ -132,6 +157,7 @@ foreach ($rubros as $r) {
             ]);
         }
 
-        return back()->with('ok', 'Checklist actualizado correctamente.');
+        return back()->with('ok', 'El checklist ha sido actualizado correctamente.');
     }
 }
+

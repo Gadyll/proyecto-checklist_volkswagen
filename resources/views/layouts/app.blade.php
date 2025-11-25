@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Volkswagen - Panel de Órdenes</title>
+    <title>Volkswagen - Panel de Control</title>
 
     {{-- Bootstrap y estilos base --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -14,10 +14,13 @@
             background-color: #f4f6f9;
             font-family: 'Segoe UI', sans-serif;
         }
+
+        /* ================================
+           SIDEBAR
+        ================================= */
         .sidebar {
-            background-color: #001f3f; /* azul Volkswagen */
+            background-color: #001f3f; /* Azul Volkswagen */
             min-height: 100vh;
-            color: white;
             width: 260px;
             position: fixed;
             left: 0;
@@ -26,116 +29,176 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            color: white;
         }
+
         .sidebar h4 {
             text-align: center;
-            color: #ffffff;
             font-weight: bold;
-            margin-bottom: 1rem;
+            color: #fff;
         }
+
         .sidebar ul {
             list-style: none;
             padding: 0;
         }
-        .sidebar ul li {
-            margin: 6px 0;
-        }
+
         .sidebar ul li a {
             display: flex;
             align-items: center;
-            color: #cfd8e3;
             padding: 10px 20px;
+            color: #cfd8e3;
             text-decoration: none;
             border-radius: 8px;
-            transition: all 0.2s ease-in-out;
+            transition: 0.2s;
         }
+
         .sidebar ul li a:hover,
         .sidebar ul li a.active {
-            background-color: #005bbb;
-            color: white;
+            background-color: #005bbb; /* Azul VW brillante */
+            color: #fff;
         }
+
         .sidebar i {
             margin-right: 10px;
-            font-size: 1.1rem;
         }
+
+        /* ================================
+           CONTENIDO
+        ================================= */
         .content {
             margin-left: 260px;
             padding: 30px;
         }
+
+        /* Botón VW */
         .btn-vw {
             background-color: #005bbb;
             color: white;
-            border: none;
         }
         .btn-vw:hover {
             background-color: #004799;
-            color: white;
+            color: #fff;
         }
+
+        /* Footer */
         footer {
             text-align: center;
             font-size: 0.85rem;
             padding: 15px;
             color: #cfd8e3;
         }
+
+        /* ================================
+           ALERTAS CON ANIMACIÓN
+        ================================= */
+        .alert {
+            opacity: 1;
+            transition: opacity .5s ease-out;
+        }
+        .alert.hide {
+            opacity: 0;
+        }
     </style>
 </head>
 
 <body>
-    <div class="d-flex">
-        {{-- Sidebar --}}
-        <nav class="sidebar">
-            <div>
-                <h4>Volkswagen</h4>
-                <ul>
-                    <li>
-                        <a href="{{ url('/') }}" class="{{ request()->is('/') ? 'active' : '' }}">
-                            <i class="bi bi-speedometer2"></i> Dashboard
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('ordenes.index') }}" class="{{ request()->is('ordenes*') ? 'active' : '' }}">
-                            <i class="bi bi-file-text"></i> Órdenes
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('asesores.index') }}" class="{{ request()->is('asesores*') ? 'active' : '' }}">
-                            <i class="bi bi-people"></i> Asesores
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ route('reportes.index') }}" class="{{ request()->is('reportes*') ? 'active' : '' }}">
-                            <i class="bi bi-file-earmark-arrow-down"></i> Reportes
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" class="{{ request()->is('configuracion*') ? 'active' : '' }}">
-                            <i class="bi bi-gear"></i> Configuración
-                        </a>
-                    </li>
-                </ul>
-            </div>
 
-            <footer>
-                © 2025 Volkswagen México
-            </footer>
-        </nav>
+<div class="d-flex">
 
-        {{-- Contenido principal --}}
-        <main class="content flex-fill">
-            @yield('content')
-        </main>
-    </div>
+    {{-- ================================
+        SIDEBAR
+    ================================= --}}
+    <nav class="sidebar">
 
-    {{-- Bootstrap JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <div>
+            <h4>Volkswagen</h4>
 
-    {{-- Alertas temporales --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(a => setTimeout(() => a.classList.remove('show'), 4000));
+            <ul>
+                <li>
+                    <a href="{{ url('/') }}" class="{{ request()->is('/') ? 'active' : '' }}">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('ordenes.index') }}" class="{{ request()->is('ordenes*') ? 'active' : '' }}">
+                        <i class="bi bi-file-text"></i> Órdenes
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('asesores.index') }}" class="{{ request()->is('asesores*') ? 'active' : '' }}">
+                        <i class="bi bi-people"></i> Asesores
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('reportes.index') }}" class="{{ request()->is('reportes*') ? 'active' : '' }}">
+                        <i class="bi bi-file-earmark-bar-graph"></i> Reportes
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <footer>© 2025 Volkswagen México</footer>
+
+    </nav>
+
+    {{-- ================================
+        CONTENIDO PRINCIPAL
+    ================================= --}}
+    <main class="content flex-fill">
+
+        {{-- ALERTAS PROFESIONALES --}}
+        <div class="container">
+
+            @if(session('ok'))
+                <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="bi bi-check-circle-fill"></i> {{ session('ok') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="bi bi-x-circle-fill"></i> {{ session('error') }}
+                </div>
+            @endif
+
+            @if(session('info'))
+                <div class="alert alert-info alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="bi bi-info-circle-fill"></i> {{ session('info') }}
+                </div>
+            @endif
+
+            @if(session('warning'))
+                <div class="alert alert-warning alert-dismissible fade show shadow-sm" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill"></i> {{ session('warning') }}
+                </div>
+            @endif
+
+        </div>
+
+        {{-- Aquí va el contenido dinámico --}}
+        @yield('content')
+
+    </main>
+
+</div>
+
+{{-- ================================
+    JS
+================================ --}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+{{-- Ocultar alertas después de 4 seg --}}
+<script>
+    setTimeout(() => {
+        document.querySelectorAll('.alert').forEach(alert => {
+            alert.classList.add('hide');
         });
-    </script>
+    }, 3000);
+</script>
+
 </body>
 </html>
-
