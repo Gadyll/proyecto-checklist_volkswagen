@@ -64,7 +64,7 @@ class Revision extends Model
     }
 
     /**
-     * Scope para filtrar por estado de revisión
+     * Scope para filtrar por estado de revisiOn
      * Ejemplo: Revision::completadas(1)->get()  →  devuelve las que tienen revision_1 llena
      */
     public function scopeCompletadas($query, $nivel = 1)

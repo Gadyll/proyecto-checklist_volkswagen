@@ -7,13 +7,13 @@ use App\Models\Orden;
 // Obtener asesores
 Route::get('/asesores', fn() => Asesor::orderBy('nombre')->get());
 
-// Obtener todas las órdenes con asesor
+// Obtener todas las Ordenes con asesor
 Route::get('/ordenes', fn() => Orden::with('asesor')->latest()->get());
 
-// Obtener una orden específica
+// Obtener una orden especifica
 Route::get('/ordenes/{id}', fn($id) => Orden::with('asesor', 'revisiones')->findOrFail($id));
 
-// Datos de estadísticas internas
+// Datos de estadIsticas internas
 Route::get('/estadisticas', function () {
     return [
         'total_asesores' => Asesor::count(),

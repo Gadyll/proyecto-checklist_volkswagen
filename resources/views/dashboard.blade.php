@@ -11,7 +11,7 @@
     <div class="row g-4">
 
         {{-- ============================
-                TARJETA ÓRDENES
+                TARJETA ORDENES
         ============================ --}}
         <div class="col-md-4">
             <div class="card shadow-sm border-0">

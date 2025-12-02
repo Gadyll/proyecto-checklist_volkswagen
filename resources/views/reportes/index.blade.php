@@ -188,7 +188,7 @@
 
 
 {{-- ===================================================== --}}
-{{--  SCRIPT PARA CONTROLAR MODAL DE ELIMINACIÓN           --}}
+{{--  SCRIPT PARA CONTROLAR MODAL DE ELIMINACION           --}}
 {{-- ===================================================== --}}
 <script>
 function openDeleteModal(id, numero) {
@@ -205,7 +205,7 @@ function openDeleteModal(id, numero) {
 
 
 {{-- ===================================================== --}}
-{{--   CONTROL DE DESHABILITACIÓN DE FILTROS              --}}
+{{--   CONTROL DE DESHABILITACIoN DE FILTROS              --}}
 {{-- ===================================================== --}}
 <script>
 document.addEventListener("DOMContentLoaded", function () {

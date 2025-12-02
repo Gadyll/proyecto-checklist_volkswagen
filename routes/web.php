@@ -7,7 +7,7 @@ use App\Http\Controllers\ReporteController;
 
 
 // =============================
-// 🏠 DASHBOARD
+// DASHBOARD
 // =============================
 Route::get('/', function () {
     return view('dashboard');
@@ -15,7 +15,7 @@ Route::get('/', function () {
 
 
 // =============================
-// 📄 ÓRDENES
+//  ORDENES
 // =============================
 Route::resource('ordenes', OrdenController::class)->parameters([
     'ordenes' => 'orden'
@@ -27,7 +27,7 @@ Route::put('/ordenes/{orden}/revisiones', [OrdenController::class, 'updateRevisi
 
 
 // =============================
-// 👤 ASESORES
+//  ASESORES
 // =============================
 
 // Resource con corrección del parámetro para evitar “asesore”
@@ -40,8 +40,7 @@ Route::get('/asesores/{asesor}/desempeno', [AsesorController::class, 'desempeno'
     ->name('asesores.desempeno');
 
 
-// =============================
-// 📊 REPORTES
+// ============================= REPORTES
 // =============================
 
 Route::get('/reportes', [ReporteController::class, 'index'])

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Asesor;
+use App\Models\Orden;
+use App\Models\Revision;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -13,17 +15,33 @@ class AsesorController extends Controller
     // ==========================================================
     public function index()
     {
-        // Cargamos órdenes y revisiones para poder calcular métricas
+        // 🔹 TOTAL general de ordenes
+        $totalOrdenesGlobal = Orden::count();
+
+        // 🔹 TOTAL general de errores (solo "NO")
+        $totalErroresGlobal = Revision::where('revision_1', 'NO')
+            ->orWhere('revision_2', 'NO')
+            ->orWhere('revision_3', 'NO')
+            ->count();
+
+        // Cargamos ordenes y revisiones para poder calcular metricas
         $asesores = Asesor::with(['ordenes.revisiones'])
             ->orderBy('nombre')
             ->paginate(10);
 
-        // Calculamos métricas básicas para cada asesor (estrellas, errores, etc.)
+        // Calculamos metricas básicas para cada asesor (estrellas, errores, etc.)
         foreach ($asesores as $asesor) {
             $asesor->metricas = $this->calcularResumen($asesor);
+
+            // 🔹 TOTAL de ordenes individuales del asesor
+            $asesor->total_ordenes_individual = $asesor->ordenes->count();
         }
 
-        return view('asesores.index', compact('asesores'));
+        return view('asesores.index', compact(
+            'asesores',
+            'totalOrdenesGlobal',
+            'totalErroresGlobal'
+        ));
     }
 
     // ==========================================================
@@ -108,13 +126,10 @@ class AsesorController extends Controller
     // ==========================================================
     public function desempeno(Asesor $asesor)
     {
-        // Cargamos todas sus órdenes con las revisiones
         $asesor->load(['ordenes.revisiones']);
 
-        // Resumen general (estrellas, efectividad, etc.)
         $metricas = $this->calcularResumen($asesor);
 
-        // Listado de órdenes con errores y rubros con más "NO"
         $ordenesConErrores = [];
         $erroresPorRubro   = [];
 
@@ -139,7 +154,6 @@ class AsesorController extends Controller
                     if (is_string($val) && strtoupper(trim($val)) === 'NO') {
                         $erroresOrden++;
 
-                        // Contamos rubros más conflictivos
                         $rubrosConNo[$rev->rubro] = true;
 
                         if (!isset($erroresPorRubro[$rev->rubro])) {
@@ -165,12 +179,8 @@ class AsesorController extends Controller
             }
         }
 
-        // Ordenamos órdenes por cantidad de errores (de mayor a menor)
-        usort($ordenesConErrores, function ($a, $b) {
-            return $b['errores'] <=> $a['errores'];
-        });
+        usort($ordenesConErrores, fn($a, $b) => $b['errores'] <=> $a['errores']);
 
-        // Ordenamos rubros por errores (de mayor a menor) y tomamos top 5
         arsort($erroresPorRubro);
         $topRubros = array_slice($erroresPorRubro, 0, 5, true);
 
@@ -183,7 +193,7 @@ class AsesorController extends Controller
     }
 
     // ==========================================================
-    // FUNCIÓN PRIVADA PARA CALCULAR RESUMEN + ESTRELLAS
+    // FUNCION PRIVADA PARA CALCULAR RESUMEN + ESTRELLAS
     // ==========================================================
     private function calcularResumen(Asesor $asesor): array
     {
@@ -218,7 +228,6 @@ class AsesorController extends Controller
             ? round(($aciertos / $totalChecks) * 100, 1)
             : 100.0;
 
-        // Conversión a estrellas (0 a 5)
         if ($efectividad >= 90) {
             $estrellas = 5;
         } elseif ($efectividad >= 80) {
@@ -243,4 +252,3 @@ class AsesorController extends Controller
         ];
     }
 }
-

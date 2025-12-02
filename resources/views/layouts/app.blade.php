@@ -71,7 +71,7 @@
             padding: 30px;
         }
 
-        /* Botón VW */
+        /* Botoon VW */
         .btn-vw {
             background-color: #005bbb;
             color: white;
@@ -89,7 +89,7 @@
             color: #cfd8e3;
         }
 
-        /* Alertas con animación */
+        /* Alertas con animacion */
         .alert {
             opacity: 1;
             transition: opacity .5s ease-out;
@@ -232,7 +232,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // Cerrar alertas automáticas
+    // Cerrar alertas automaticas
     setTimeout(() => {
         document.querySelectorAll('.alert').forEach(alert => {
             alert.classList.add('hide');
@@ -240,7 +240,7 @@
     }, 3000);
 
 
-    // Función para abrir modal de confirmación
+    // Funcion para abrir modal de confirmacion
     function abrirModalEliminar(url) {
         const form = document.getElementById('formEliminarOrden');
         form.action = url;

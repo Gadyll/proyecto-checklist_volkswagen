@@ -38,7 +38,7 @@
             </div>
 
             {{-- ===========================
-                NÚMERO DE CHASIS
+                NuMERO DE CHASIS
             ============================ --}}
             <div class="col-md-4">
                 <label class="form-label fw-bold">Número de chasis</label>
@@ -107,7 +107,7 @@
 </div>
 
 {{-- ===========================
-    VALIDACIÓN EN TIEMPO REAL
+    VALIDACIoN EN TIEMPO REAL
 =========================== --}}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
